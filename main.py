@@ -117,12 +117,19 @@ class Paddle:
             self.y = 0
         self.rect = (self.x, self.y, self.width, self.length)
 
+    def hitBall(self, ball):
+        leftright = self.x < ball.x < self.x+self.width
+        topbottom = self.y < ball.y < self.y+self.length
+        if leftright and topbottom:
+            ball.x_speed *= -1
+
 
 def main():
 
     setTitle(TITLE)
     setIcon(ICON)
 
+    clock = pygame.time.Clock()
     player1 = Player(1)
     player1.createPaddle()
     player2 = Player(2)
@@ -133,6 +140,7 @@ def main():
     ball = Ball()
     running = True
     while running:
+        clock.tick(500)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -144,9 +152,13 @@ def main():
         player1.paddle.show()
         player1.paddle.hitEdges()
         player1.movePaddle()
+        player1.paddle.hitBall(ball)
         player2.paddle.show()
         player2.movePaddle()
         player2.paddle.hitEdges()
+        player2.paddle.hitBall(ball)
+        # ball.leaveScreen()
+        keys = pygame.key.get_pressed()
 
         pygame.display.update()
 
