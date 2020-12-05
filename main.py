@@ -67,8 +67,27 @@ class Ball:
 
 
 class Player:
-    def ___init__(self):
-        pass
+    def __init__(self, name):
+        self.name = name
+        self.score = 0
+
+    def createPaddle(self):
+        self.paddle = Paddle(10) if self.name == 1 else Paddle(WIDTH-2*10)
+
+    def setKeys(self):
+        if self.name == 1:
+            self.upKey = pygame.K_w
+            self.downKey = pygame.K_s
+        else:
+            self.upKey = pygame.K_UP
+            self.downKey = pygame.K_DOWN
+
+    def movePaddle(self):
+        keys = pygame.key.get_pressed()
+        if keys[self.upKey]:
+            self.paddle.moveUp()
+        if keys[self.downKey]:
+            self.paddle.moveDown()
 
 
 class Paddle:
@@ -104,6 +123,14 @@ def main():
     setTitle(TITLE)
     setIcon(ICON)
 
+    player1 = Player(1)
+    player1.createPaddle()
+    player2 = Player(2)
+    player2.createPaddle()
+    player1.setKeys()
+    player2.setKeys()
+
+    ball = Ball()
     running = True
     while running:
         for event in pygame.event.get():
@@ -111,6 +138,15 @@ def main():
                 running = False
 
         screen.fill(BLACK)
+        ball.show()
+        ball.move()
+        ball.hitEdges()
+        player1.paddle.show()
+        player1.paddle.hitEdges()
+        player1.movePaddle()
+        player2.paddle.show()
+        player2.movePaddle()
+        player2.paddle.hitEdges()
 
         pygame.display.update()
 
