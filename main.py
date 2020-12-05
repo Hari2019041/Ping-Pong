@@ -14,7 +14,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
 def setTitle(TITLE):
@@ -72,27 +72,46 @@ class Player:
 
 
 class Paddle:
-    def __init__(self):
-        pass
+    def __init__(self, x):
+        self.width = 10
+        self.length = 80
+        self.x = x
+        self.y = int(HEIGHT/2 - self.length/2)
+        self.speed = 2
+        self.rect = (self.x, self.y, self.width, self.length)
+
+    def show(self):
+        pygame.draw.rect(screen, WHITE, self.rect)
+
+    def moveUp(self):
+        self.y -= self.speed
+        self.rect = (self.x, self.y, self.width, self.length)
+
+    def moveDown(self):
+        self.y += self.speed
+        self.rect = (self.x, self.y, self.width, self.length)
+
+    def hitEdges(self):
+        if self.y + self.length > HEIGHT:
+            self.y = HEIGHT-self.length
+        elif self.y < 0:
+            self.y = 0
+        self.rect = (self.x, self.y, self.width, self.length)
 
 
 def main():
 
     setTitle(TITLE)
     setIcon(ICON)
+
     running = True
-    ball = Ball()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
         screen.fill(BLACK)
-        ball.show()
-        # ball.start()
-        ball.move()
-        ball.hitEdges()
-        ball.leaveScreen()
+
         pygame.display.update()
 
 
