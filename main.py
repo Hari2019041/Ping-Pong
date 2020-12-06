@@ -26,33 +26,28 @@ def setIcon(ICON):
 
 
 class Ball:
-    def __init__(self):
+    def __init__(self, color):
         self.x = int(WIDTH/2)
         self.y = int(HEIGHT/2)
         self.x_speed = 1
         self.y_speed = 1
-        self.size = 8
+        self.size = 10
+        self.color = color
 
     def start(self):
         self.x_speed = 1
         self.y_speed = 1
 
     def show(self):
-        pygame.draw.circle(screen, WHITE, (self.x, self.y), self.size)
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.size)
 
     def move(self):
         self.x += self.x_speed
         self.y += self.y_speed
 
-    def hitEdges(self):
+    def checkforEdges(self):
         if self.y > HEIGHT or self.y < 0:
             self.y_speed *= -1
-
-    def hitPaddle(self, paddle):
-        leftright = self.x > paddle.x or self.x < paddle.x - paddle.width
-        topbottom = self.y > paddle.y and self.y < paddle.y + paddle.length
-        if topbottom and leftright:
-            self.x_speed *= -1
 
     def reset(self):
         self.x_speed = 0
@@ -70,6 +65,8 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.score = 0
+        self.createPaddle()
+        self.setKeys()
 
     def createPaddle(self):
         self.paddle = Paddle(10) if self.name == 1 else Paddle(WIDTH-2*10)
@@ -93,7 +90,7 @@ class Player:
 class Paddle:
     def __init__(self, x):
         self.width = 10
-        self.length = 80
+        self.length = 100
         self.x = x
         self.y = int(HEIGHT/2 - self.length/2)
         self.speed = 2
@@ -110,14 +107,14 @@ class Paddle:
         self.y += self.speed
         self.rect = (self.x, self.y, self.width, self.length)
 
-    def hitEdges(self):
+    def checkforEdges(self):
         if self.y + self.length > HEIGHT:
             self.y = HEIGHT-self.length
         elif self.y < 0:
             self.y = 0
         self.rect = (self.x, self.y, self.width, self.length)
 
-    def hitBall(self, ball):
+    def checkforBall(self, ball):
         leftright = self.x < ball.x < self.x+self.width
         topbottom = self.y < ball.y < self.y+self.length
         if leftright and topbottom:
@@ -125,19 +122,14 @@ class Paddle:
 
 
 def main():
-
     setTitle(TITLE)
     setIcon(ICON)
 
     clock = pygame.time.Clock()
     player1 = Player(1)
-    player1.createPaddle()
     player2 = Player(2)
-    player2.createPaddle()
-    player1.setKeys()
-    player2.setKeys()
 
-    ball = Ball()
+    ball = Ball(GREEN)
     running = True
     while running:
         clock.tick(500)
@@ -148,17 +140,18 @@ def main():
         screen.fill(BLACK)
         ball.show()
         ball.move()
-        ball.hitEdges()
+        ball.checkforEdges()
         player1.paddle.show()
-        player1.paddle.hitEdges()
+        player1.paddle.checkforEdges()
         player1.movePaddle()
-        player1.paddle.hitBall(ball)
+        player1.paddle.checkforBall(ball)
+
         player2.paddle.show()
+        player2.paddle.checkforEdges()
         player2.movePaddle()
-        player2.paddle.hitEdges()
-        player2.paddle.hitBall(ball)
+        player2.paddle.checkforBall(ball)
+
         # ball.leaveScreen()
-        keys = pygame.key.get_pressed()
 
         pygame.display.update()
 
