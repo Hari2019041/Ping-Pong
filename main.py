@@ -72,10 +72,12 @@ class Game:
                 self.running = False
 
     def checkforPoint(self):
-        if self.ball.x - self.ball.size < 0:
+        player1win = self.ball.x + self.ball.size
+        player2win = self.ball.x - self.ball.size
+        if player2win < 0:
             self.player2.score += 1
             self.ball.reset()
-        elif self.ball.x + self.ball.size > WIDTH:
+        elif player1win > WIDTH:
             self.player1.score += 1
             self.ball.reset()
 
@@ -170,6 +172,7 @@ class Paddle:
         self.y = int(HEIGHT/2 - self.length/2)
         self.speed = 3
         self.rect = (self.x, self.y, self.width, self.length)
+        self.rally = 5
 
     def show(self):
         pygame.draw.rect(screen, WHITE, self.rect)
@@ -200,15 +203,9 @@ class Paddle:
         self.checkforShots(ball)
 
     def checkforShots(self, ball):
-        if ball.shots >= 2:
-            if ball.x_speed > 0:
-                ball.x_speed += 1
-            else:
-                ball.x_speed -= 1
-            if ball.y_speed > 0:
-                ball.y_speed += 1
-            else:
-                ball.y_speed -= 1
+        if ball.shots >= self.rally:
+            ball.x_speed += 1 if ball.x_speed > 0 else ball.x_speed-1
+            ball.y_speed += 1 if ball.y_speed > 0 else ball.y_speed-1
             ball.shots = 0
 
 
@@ -216,8 +213,8 @@ def main():
     setTitle(TITLE)
     setIcon(ICON)
 
-    player1 = Player(1, "test1")
-    player2 = Player(2, "test2")
+    player1 = Player(1, "Hari")
+    player2 = Player(2, "Jyoti")
     ball = Ball(GREEN)
 
     game = Game(player1, player2, ball)
