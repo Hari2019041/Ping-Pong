@@ -108,8 +108,8 @@ class Ball:
     def reset(self):
         self.x_speed *= -1
         self.y_speed *= -1
-        self.x = int(WIDTH/2)
-        self.y = int(HEIGHT/2)
+        self.x = random.randint(WIDTH//2-70, WIDTH//2+70)
+        self.y = random.randint(HEIGHT//2 - 70, HEIGHT//2 + 70)
 
     def leaveScreen(self):
         if self.x > WIDTH or self.x < 0:
