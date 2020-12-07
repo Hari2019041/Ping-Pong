@@ -61,6 +61,7 @@ class Game:
             self.player2.paddle.checkforEdges()
 
             self.checkforPoint()
+            self.showNames()
             self.showScores()
 
             pygame.display.update()
@@ -78,6 +79,10 @@ class Game:
             self.player1.score += 1
             self.ball.reset()
 
+    def showNames(self):
+        self.player1.showName()
+        self.player2.showName()
+
     def showScores(self):
         self.player1.showScore()
         self.player2.showScore()
@@ -92,10 +97,6 @@ class Ball:
         self.size = 10
         self.color = color
         self.shots = 0
-
-    def start(self):
-        self.x_speed = 1
-        self.y_speed = 1
 
     def show(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.size)
@@ -122,7 +123,8 @@ class Ball:
 
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, no, name):
+        self.no = no
         self.name = name
         self.score = 0
         self.createPaddle()
@@ -130,13 +132,14 @@ class Player:
         self.setScorepos()
 
     def setScorepos(self):
-        self.scorepos = (30, 0) if self.name == 1 else (WIDTH-60, 0)
+        self.namepos = (30, 0) if self.no == 1 else (WIDTH-100, 0)
+        self.scorepos = (30, 50) if self.no == 1 else (WIDTH-100, 50)
 
     def createPaddle(self):
-        self.paddle = Paddle(10) if self.name == 1 else Paddle(WIDTH-2*10)
+        self.paddle = Paddle(10) if self.no == 1 else Paddle(WIDTH-2*10)
 
     def setKeys(self):
-        if self.name == 1:
+        if self.no == 1:
             self.upKey = pygame.K_w
             self.downKey = pygame.K_s
         else:
@@ -149,6 +152,10 @@ class Player:
             self.paddle.moveUp()
         if keys[self.downKey]:
             self.paddle.moveDown()
+
+    def showName(self):
+        name_label = gameFont.render(str(self.name), True, WHITE, BLACK)
+        screen.blit(name_label, self.namepos)
 
     def showScore(self):
         score = gameFont.render(str(self.score), True, WHITE, BLACK)
@@ -189,9 +196,19 @@ class Paddle:
             pygame.mixer.Sound.play(bounce)
             ball.x_speed *= -1
             ball.shots += 0.5
-        if ball.shots >= 5:
-            ball.x_speed += 1
-            ball.y_speed += 1
+
+        self.checkforShots(ball)
+
+    def checkforShots(self, ball):
+        if ball.shots >= 2:
+            if ball.x_speed > 0:
+                ball.x_speed += 1
+            else:
+                ball.x_speed -= 1
+            if ball.y_speed > 0:
+                ball.y_speed += 1
+            else:
+                ball.y_speed -= 1
             ball.shots = 0
 
 
@@ -199,8 +216,8 @@ def main():
     setTitle(TITLE)
     setIcon(ICON)
 
-    player1 = Player(1)
-    player2 = Player(2)
+    player1 = Player(1, "test1")
+    player2 = Player(2, "test2")
     ball = Ball(GREEN)
 
     game = Game(player1, player2, ball)
