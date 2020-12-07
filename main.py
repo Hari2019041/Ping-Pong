@@ -1,14 +1,17 @@
 import pygame
 import random
+import os
 
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
 
 WIDTH = 900
 HEIGHT = 600
 TITLE = "Ping Pong"
 ICON = pygame.image.load("icon.png")
 gameFont = pygame.font.SysFont("Comic Sans MS", 30)
+bounce = pygame.mixer.Sound(os.path.join("sounds", 'bounce.wav'))
 
 # Colors
 WHITE = (255, 255, 255)
@@ -38,7 +41,6 @@ class Game:
 
     def start(self):
         while self.running:
-            print(self.player1.score, self.player2.score)
             self.clock.tick(500)
             screen.fill(BLACK)
             self.end()
@@ -85,10 +87,11 @@ class Ball:
     def __init__(self, color):
         self.x = int(WIDTH/2)
         self.y = int(HEIGHT/2)
-        self.x_speed = 1
-        self.y_speed = 1
+        self.x_speed = random.choice([-1, 1])
+        self.y_speed = random.choice([-1, 1])
         self.size = 10
         self.color = color
+        self.shots = 0
 
     def start(self):
         self.x_speed = 1
@@ -103,11 +106,13 @@ class Ball:
 
     def checkforEdges(self):
         if self.y > HEIGHT or self.y < 0:
+            pygame.mixer.Sound.play(bounce)
             self.y_speed *= -1
 
     def reset(self):
-        self.x_speed *= -1
-        self.y_speed *= -1
+        self.x_speed = random.choice([-1, 1])
+        self.y_speed = random.choice([-1, 1])
+        self.shots = 0
         self.x = random.randint(WIDTH//2-70, WIDTH//2+70)
         self.y = random.randint(HEIGHT//2 - 70, HEIGHT//2 + 70)
 
@@ -125,7 +130,7 @@ class Player:
         self.setScorepos()
 
     def setScorepos(self):
-        self.scorepos = (30, 0) if self.name == 1 else (WIDTH-50, 0)
+        self.scorepos = (30, 0) if self.name == 1 else (WIDTH-60, 0)
 
     def createPaddle(self):
         self.paddle = Paddle(10) if self.name == 1 else Paddle(WIDTH-2*10)
@@ -152,11 +157,11 @@ class Player:
 
 class Paddle:
     def __init__(self, x):
-        self.width = 10
-        self.length = 100
+        self.width = 12
+        self.length = HEIGHT//5
         self.x = x
         self.y = int(HEIGHT/2 - self.length/2)
-        self.speed = 2
+        self.speed = 3
         self.rect = (self.x, self.y, self.width, self.length)
 
     def show(self):
@@ -181,14 +186,19 @@ class Paddle:
         leftright = self.x < ball.x < self.x+self.width
         topbottom = self.y < ball.y < self.y+self.length
         if leftright and topbottom:
+            pygame.mixer.Sound.play(bounce)
             ball.x_speed *= -1
+            ball.shots += 0.5
+        if ball.shots >= 5:
+            ball.x_speed += 1
+            ball.y_speed += 1
+            ball.shots = 0
 
 
 def main():
     setTitle(TITLE)
     setIcon(ICON)
 
-    myfont = pygame.font.SysFont('Comic Sans MS', 30)
     player1 = Player(1)
     player2 = Player(2)
     ball = Ball(GREEN)
