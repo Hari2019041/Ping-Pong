@@ -36,35 +36,68 @@ class Game:
         self.clock = pygame.time.Clock()
         self.player1 = player1
         self.player2 = player2
+        self.computer = Computer()
         self.ball = ball
+        self.mode = "twoplayer"
         self.screen = "start"
+
+    def computerMode(self):
+        screen.fill(BLACK)
+        self.end()
+        self.ball.show()
+        self.ball.move()
+        self.ball.checkforEdges()
+
+        self.player2.paddle.show()
+        self.player2.movePaddle()
+        self.player2.paddle.checkforBall(self.ball)
+        self.player2.paddle.checkforEdges()
+
+        self.computer.paddle.show()
+        self.computer.paddle.checkforEdges()
+        self.computer.paddle.checkforBall(self.ball)
+
+        self.computer.computerAI(self.ball)
+        self.checkforPoint()
+        self.player2.showName()
+        self.computer.showName()
+        self.showPlayerScores()
+        self.showLine()
+        pygame.display.update()
+
+    def twoPlayerMode(self):
+        screen.fill(BLACK)
+        self.end()
+        self.ball.show()
+        self.ball.move()
+        self.ball.checkforEdges()
+
+        self.player1.paddle.show()
+        self.player2.paddle.show()
+
+        self.player1.movePaddle()
+        self.player2.movePaddle()
+
+        self.player1.paddle.checkforBall(self.ball)
+        self.player2.paddle.checkforBall(self.ball)
+
+        self.player1.paddle.checkforEdges()
+        self.player2.paddle.checkforEdges()
+
+        self.checkforPoint()
+        self.showPlayerNames()
+        self.showPlayerScores()
+        self.showLine()
+
+        pygame.display.update()
 
     def start(self):
         while self.running:
             self.clock.tick(500)
-            screen.fill(BLACK)
-            self.end()
-            self.ball.show()
-            self.ball.move()
-            self.ball.checkforEdges()
-
-            self.player1.paddle.show()
-            self.player2.paddle.show()
-
-            self.player1.movePaddle()
-            self.player2.movePaddle()
-
-            self.player1.paddle.checkforBall(self.ball)
-            self.player2.paddle.checkforBall(self.ball)
-
-            self.player1.paddle.checkforEdges()
-            self.player2.paddle.checkforEdges()
-
-            self.checkforPoint()
-            self.showNames()
-            self.showScores()
-
-            pygame.display.update()
+            if self.mode == "twoplayer":
+                self.twoPlayerMode()
+            elif self.mode == "computer":
+                self.computerMode()
 
     def end(self):
         for event in pygame.event.get():
@@ -81,13 +114,16 @@ class Game:
             self.player1.score += 1
             self.ball.reset()
 
-    def showNames(self):
+    def showPlayerNames(self):
         self.player1.showName()
         self.player2.showName()
 
-    def showScores(self):
+    def showPlayerScores(self):
         self.player1.showScore()
         self.player2.showScore()
+
+    def showLine(self):
+        pygame.draw.line(screen, WHITE, (WIDTH//2, 0), (WIDTH//2, HEIGHT))
 
 
 class Ball:
@@ -162,6 +198,17 @@ class Player:
     def showScore(self):
         score = gameFont.render(str(self.score), True, WHITE, BLACK)
         screen.blit(score, self.scorepos)
+
+
+class Computer(Player):
+    def __init__(self):
+        super().__init__(1, "Computer")
+        self.paddle = Paddle(10)
+
+    def computerAI(self, ball):
+        paddle = self.paddle
+        paddle.y = ball.y - paddle.length//2
+        paddle.rect = (paddle.x, paddle.y, paddle.width, paddle.length)
 
 
 class Paddle:
