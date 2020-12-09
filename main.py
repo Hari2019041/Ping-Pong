@@ -38,7 +38,7 @@ class Game:
         self.player2 = player2
         self.computer = Computer()
         self.ball = ball
-        self.mode = "twoplayer"
+        self.mode = "computer"
         self.screen = "start"
 
     def computerMode(self):
@@ -204,11 +204,22 @@ class Computer(Player):
     def __init__(self):
         super().__init__(1, "Computer")
         self.paddle = Paddle(10)
+        self.paddle.speed = 1
+    #
+    # def computerAI(self, ball):
+    #     paddle = self.paddle
+    #     paddle.y = ball.y - paddle.length//2
+    #     paddle.rect = (paddle.x, paddle.y, paddle.width, paddle.length)
+
+    def computerAI2(self, ball):
+        pass
 
     def computerAI(self, ball):
-        paddle = self.paddle
-        paddle.y = ball.y - paddle.length//2
-        paddle.rect = (paddle.x, paddle.y, paddle.width, paddle.length)
+        if ball.x < WIDTH//2 and ball.x_speed < 0:
+            if ball.y < self.paddle.y+self.paddle.length//2:
+                self.paddle.moveUp()
+            elif ball.y > self.paddle.y+self.paddle.length//2:
+                self.paddle.moveDown()
 
 
 class Paddle:
