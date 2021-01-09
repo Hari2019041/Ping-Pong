@@ -204,15 +204,7 @@ class Computer(Player):
     def __init__(self):
         super().__init__(1, "Computer")
         self.paddle = Paddle(10)
-        self.paddle.speed = 1
-    #
-    # def computerAI(self, ball):
-    #     paddle = self.paddle
-    #     paddle.y = ball.y - paddle.length//2
-    #     paddle.rect = (paddle.x, paddle.y, paddle.width, paddle.length)
-
-    def computerAI2(self, ball):
-        pass
+        self.paddle.speed = 2
 
     def computerAI(self, ball):
         if ball.x < WIDTH//2 and ball.x_speed < 0:
@@ -257,14 +249,6 @@ class Paddle:
             pygame.mixer.Sound.play(bounce)
             ball.x_speed *= -1
             ball.shots += 0.5
-
-        self.checkforShots(ball)
-
-    def checkforShots(self, ball):
-        if ball.shots >= self.rally:
-            ball.x_speed += 1 if ball.x_speed > 0 else ball.x_speed-1
-            ball.y_speed += 1 if ball.y_speed > 0 else ball.y_speed-1
-            ball.shots = 0
 
 
 def main():
