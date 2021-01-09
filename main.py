@@ -6,14 +6,20 @@ pygame.init()
 pygame.font.init()
 pygame.mixer.init()
 
+# GLOBAL VARIABLES
 WIDTH = 900
 HEIGHT = 600
 TITLE = "Ping Pong"
 ICON = pygame.image.load("icon.png")
+
+# FONTS
+mainScreenFont = pygame.font.SysFont("Comic Sans MS", 40)
 gameFont = pygame.font.SysFont("Comic Sans MS", 30)
+
+# SOUNDS
 bounce = pygame.mixer.Sound(os.path.join("sounds", 'bounce.wav'))
 
-# Colors
+# COLORS
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -38,8 +44,21 @@ class Game:
         self.player2 = player2
         self.computer = Computer()
         self.ball = ball
-        self.mode = "computer"
-        self.screen = "start"
+        self.game_mode = "computer"
+        self.screen_mode = "main"
+
+    def paddleMethods(self):
+        self.player1.paddle.show()
+        self.player2.paddle.show()
+
+        self.player1.movePaddle()
+        self.player2.movePaddle()
+
+        self.player1.paddle.checkforBall(self.ball)
+        self.player2.paddle.checkforBall(self.ball)
+
+        self.player1.paddle.checkforEdges()
+        self.player2.paddle.checkforEdges()
 
     def computerMode(self):
         screen.fill(BLACK)
@@ -72,17 +91,7 @@ class Game:
         self.ball.move()
         self.ball.checkforEdges()
 
-        self.player1.paddle.show()
-        self.player2.paddle.show()
-
-        self.player1.movePaddle()
-        self.player2.movePaddle()
-
-        self.player1.paddle.checkforBall(self.ball)
-        self.player2.paddle.checkforBall(self.ball)
-
-        self.player1.paddle.checkforEdges()
-        self.player2.paddle.checkforEdges()
+        self.paddleMethods()
 
         self.checkforPoint()
         self.showPlayerNames()
@@ -93,10 +102,33 @@ class Game:
 
     def start(self):
         while self.running:
+            if self.screen_mode == "main":
+                self.mainPage()
+            elif self.screen_mode == "game":
+                self.startGame()
+
+    def mainPage(self):
+        font = pygame.font.SysFont("Comic Sans MS", 40)
+        screen.fill(BLACK)
+        self.end()
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        startGameButton = font.render("START GAME", True, WHITE, BLACK)
+        screen.blit(startGameButton, (WIDTH//2 - 130, HEIGHT//2-100))
+
+        is_mouse_x = mouse_x >= WIDTH//2 - 130 and mouse_x <= WIDTH//2 - 130 + startGameButton.get_width()
+        is_mouse_y = mouse_y >= HEIGHT//2 - 100 and mouse_y <= HEIGHT//2 - 100 + startGameButton.get_height()
+        if is_mouse_x and is_mouse_y:
+            self.screen_mode = "game"
+        pygame.display.update()
+
+    def startGame(self):
+        while self.running:
             self.clock.tick(500)
-            if self.mode == "twoplayer":
+            if self.game_mode == "twoplayer":
                 self.twoPlayerMode()
-            elif self.mode == "computer":
+            elif self.game_mode == "computer":
                 self.computerMode()
 
     def end(self):
@@ -263,4 +295,5 @@ def main():
     game.start()
 
 
-main()
+if __name__ == "__main__":
+    main()
