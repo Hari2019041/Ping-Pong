@@ -99,22 +99,27 @@ class Game:
             self.startGame() if self.screen_mode == 'game' else ''
 
     def mainPage(self):
-        font = pygame.font.SysFont('Comic Sans MS', 40)
+        font = mainScreenFont
         SCREEN.fill(BLACK)
-        self.end()
+
+        def startGameButton():
+            startGameText = font.render('START GAME', True, BLACK, WHITE)
+            x_pos = WIDTH // 2 - startGameText.get_width() // 2
+            y_pos = HEIGHT // 2 - startGameText.get_height() // 2 - 150
+            startGameRect = pygame.Rect((x_pos, y_pos, 264, 57))
+            SCREEN.blit(startGameText, (x_pos, y_pos))
+
+            return startGameRect
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
-        startGameButton = font.render('START GAME', True, WHITE, BLACK)
-        x_pos = WIDTH//2 - startGameButton.get_width()//2
-        y_pos = HEIGHT//2 - startGameButton.get_height()//2
+        clicked = False
+        for event in pygame.event.get():
+            self.RUNNING = False if event.type == pygame.QUIT else True
+            clicked = True if event.type == pygame.MOUSEBUTTONDOWN else False
 
-        startGamerect = pygame.Rect((x_pos, y_pos, 264, 57))
-        SCREEN.blit(startGameButton, (x_pos, y_pos))
-
-        temp = startGamerect.collidepoint((mouse_x, mouse_y))
-
-        self.screen_mode = 'game' if temp else 'main'
+        startGame = startGameButton().collidepoint((mouse_x, mouse_y))
+        self.screen_mode = 'game' if startGame and clicked else 'main'
 
         pygame.display.update()
 
@@ -147,13 +152,13 @@ class Game:
         self.player2.showScore()
 
     def showLine(self):
-        pygame.draw.line(SCREEN, WHITE, (WIDTH//2, 0), (WIDTH//2, HEIGHT))
+        pygame.draw.line(SCREEN, WHITE, (WIDTH // 2, 0), (WIDTH // 2, HEIGHT))
 
 
 class Ball:
     def __init__(self, color=WHITE):
-        self.x = int(WIDTH/2)
-        self.y = int(HEIGHT/2)
+        self.x = int(WIDTH / 2)
+        self.y = int(HEIGHT / 2)
         self.x_speed = choice([-1, 1])
         self.y_speed = choice([-1, 1])
         self.size = 10
@@ -176,8 +181,8 @@ class Ball:
         self.x_speed = choice([-1, 1])
         self.y_speed = choice([-1, 1])
         self.shots = 0
-        self.x = randint(WIDTH//2-70, WIDTH//2+70)
-        self.y = randint(HEIGHT//2 - 70, HEIGHT//2 + 70)
+        self.x = randint(WIDTH // 2 - 70, WIDTH // 2 + 70)
+        self.y = randint(HEIGHT // 2 - 70, HEIGHT // 2 + 70)
 
     def leaveScreen(self):
         self.reset() if self.x > WIDTH or self.x < 0 else ''
@@ -193,11 +198,11 @@ class Player:
         self.setScorepos()
 
     def setScorepos(self):
-        self.namepos = (30, 0) if self.no == 1 else (WIDTH-100, 0)
-        self.scorepos = (30, 50) if self.no == 1 else (WIDTH-100, 50)
+        self.namepos = (30, 0) if self.no == 1 else (WIDTH - 100, 0)
+        self.scorepos = (30, 50) if self.no == 1 else (WIDTH - 100, 50)
 
     def createPaddle(self):
-        self.paddle = Paddle(10) if self.no == 1 else Paddle(WIDTH-2*10)
+        self.paddle = Paddle(10) if self.no == 1 else Paddle(WIDTH - 2 * 10)
 
     def setKeys(self):
         self.upKey = pygame.K_w if self.no == 1 else pygame.K_UP
@@ -218,25 +223,25 @@ class Player:
 
 
 class Computer(Player):
-    def __init__(self):
-        super().__init__(1, 'Computer')
+    def __init__(self, no=1, name='Computer'):
+        super().__init__(no, name)
         self.paddle = Paddle(10)
         self.paddle.speed = 1
 
     def computerAI(self, ball):
-        if ball.x < WIDTH//2 and ball.x_speed < 0:
-            if ball.y < self.paddle.y+self.paddle.length//2:
+        if ball.x < WIDTH // 2 and ball.x_speed < 0:
+            if ball.y < self.paddle.y + self.paddle.length // 2:
                 self.paddle.moveUp()
-            elif ball.y > self.paddle.y+self.paddle.length//2:
+            elif ball.y > self.paddle.y + self.paddle.length // 2:
                 self.paddle.moveDown()
 
 
 class Paddle:
     def __init__(self, x):
-        self.width = 12
-        self.length = HEIGHT//5
+        self.width = 10
+        self.length = HEIGHT // 5
         self.x = x
-        self.y = int(HEIGHT/2 - self.length/2)
+        self.y = int(HEIGHT / 2 - self.length / 2)
         self.speed = 1
         self.rect = (self.x, self.y, self.width, self.length)
         self.rally = 5
@@ -250,16 +255,16 @@ class Paddle:
 
     def moveDown(self):
         self.y += self.speed
-        self.rect = (self.x, self.y+self.speed, self.width, self.length)
+        self.rect = (self.x, self.y + self.speed, self.width, self.length)
 
     def checkforEdges(self):
-        self.y = HEIGHT-self.length if self.y+self.length > HEIGHT else self.y
+        self.y = HEIGHT - self.length if self.y + self.length > HEIGHT else self.y
         self.y = 0 if self.y < 0 else self.y
         self.rect = (self.x, self.y, self.width, self.length)
 
     def checkforBall(self, ball):
-        leftright = self.x < ball.x < self.x+self.width
-        topbottom = self.y < ball.y < self.y+self.length
+        leftright = self.x < ball.x < self.x + self.width
+        topbottom = self.y < ball.y < self.y + self.length
         if leftright and topbottom:
             pygame.mixer.Sound.play(BOUNCE)
             ball.x_speed *= -1
@@ -269,7 +274,7 @@ class Paddle:
 def main():
     setWindow(TITLE, ICON)
 
-    player1 = Player(1, 'Ayushi')
+    player1 = Player(1, 'Jyoti')
     player2 = Player(2, 'Hari')
 
     game = Game(player1, player2)
