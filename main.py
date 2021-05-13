@@ -3,11 +3,6 @@ from Paddle import Paddle
 from Player import Player, Computer
 from Ball import Ball
 
-def setWindow(TITLE, ICON):
-    pygame.display.set_caption(TITLE)
-    pygame.display.set_icon(ICON)
-
-
 class Game:
     def __init__(self, player1, player2):
         self.RUNNING = True
@@ -20,58 +15,17 @@ class Game:
         self.game_mode = 'computer'
         self.screen_mode = 'main'
 
-    def paddleMethods(self):
-        self.player1.paddle.show()
-        self.player2.paddle.show()
-
-        self.player1.movePaddle()
-        self.player2.movePaddle()
-
-        self.player1.paddle.checkforBall(self.ball)
-        self.player2.paddle.checkforBall(self.ball)
-
-        self.player1.paddle.checkforEdges()
-        self.player2.paddle.checkforEdges()
-
-    def computerMode(self):
+    def playGame(self):
         SCREEN.fill(BLACK)
         self.end()
         self.ball.show()
         self.ball.move()
         self.ball.checkforEdges()
 
-        self.player2.paddle.show()
-        self.player2.movePaddle()
-        self.player2.paddle.checkforBall(self.ball)
-        self.player2.paddle.checkforEdges()
+        self.player1.usePaddle(self.ball)
+        self.player2.usePaddle(self.ball)
 
-        self.computer.paddle.show()
-        self.computer.paddle.checkforEdges()
-        self.computer.paddle.checkforBall(self.ball)
-        self.computer.computerAI(self.ball)
-
-        self.player2.showName()
-        self.computer.showName()
-
-        self.checkforPoint()
-        self.showPlayerScores()
-        self.showLine()
-        pygame.display.update()
-
-    def twoPlayerMode(self):
-        SCREEN.fill(BLACK)
-        self.end()
-        self.ball.show()
-        self.ball.move()
-        self.ball.checkforEdges()
-
-        self.paddleMethods()
-
-        self.checkforPoint()
-        self.showPlayerNames()
-        self.showPlayerScores()
-        self.showLine()
-
+        self.gameMethods()
         pygame.display.update()
 
     def start(self):
@@ -84,11 +38,11 @@ class Game:
         SCREEN.fill(BLACK)
 
         def startGameButton():
-            startGameText = font.render('START GAME', True, BLACK, WHITE)
-            x_pos = WIDTH // 2 - startGameText.get_width() // 2
-            y_pos = HEIGHT // 2 - startGameText.get_height() // 2 - 150
-            startGameRect = pygame.Rect((x_pos, y_pos, 264, 57))
-            SCREEN.blit(startGameText, (x_pos, y_pos))
+            text = font.render('START GAME', True, BLACK, WHITE)
+            x_pos = WIDTH // 2 - text.get_width() // 2
+            y_pos = HEIGHT // 2 - text.get_height() // 2 - 150
+            startGameRect = pygame.Rect((x_pos, y_pos, text.get_width(), text.get_height()))
+            SCREEN.blit(text, (x_pos, y_pos))
 
             return startGameRect
 
@@ -107,8 +61,8 @@ class Game:
     def startGame(self):
         while self.RUNNING:
             self.clock.tick(self.FPS)
-            self.twoPlayerMode() if self.game_mode == 'twoplayer' else ''
-            self.computerMode() if self.game_mode == 'computer' else ''
+            self.player1 = self.computer if self.game_mode == 'computer' else self.player1
+            self.playGame()
 
     def end(self):
         for event in pygame.event.get():
@@ -131,6 +85,12 @@ class Game:
 
     def showLine(self):
         pygame.draw.line(SCREEN, WHITE, (WIDTH // 2, 0), (WIDTH // 2, HEIGHT))
+
+    def gameMethods(self):
+        self.checkforPoint()
+        self.showPlayerNames()
+        self.showPlayerScores()
+        self.showLine()
 
 def main():
     setWindow(TITLE, ICON)

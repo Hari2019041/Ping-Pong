@@ -26,19 +26,23 @@ class Player:
         self.paddle.moveUp() if keys[self.upKey] else ''
         self.paddle.moveDown() if keys[self.downKey] else ''
 
+    def usePaddle(self, ball):
+        self.movePaddle()
+        self.paddle.show()
+        self.paddle.checkforBall(ball)
+        self.paddle.checkforEdges()
+
     def showName(self):
-        name_label = gameFont.render(str(self.name), True, WHITE, BLACK)
-        SCREEN.blit(name_label, self.namepos)
+        nameLabel = gameFont.render(str(self.name), True, WHITE, BLACK)
+        SCREEN.blit(nameLabel, self.namepos)
 
     def showScore(self):
-        score = gameFont.render(str(self.score), True, WHITE, BLACK)
-        SCREEN.blit(score, self.scorepos)
+        scoreLabel = gameFont.render(str(self.score), True, WHITE, BLACK)
+        SCREEN.blit(scoreLabel, self.scorepos)
 
 class Computer(Player):
     def __init__(self, no=1, name='Computer'):
         super().__init__(no, name)
-        self.paddle = Paddle(10)
-        self.paddle.speed = 1
 
     def computerAI(self, ball):
         if ball.x < WIDTH // 2 and ball.x_speed < 0:
@@ -46,3 +50,9 @@ class Computer(Player):
                 self.paddle.moveUp()
             if ball.y > self.paddle.y + self.paddle.length // 2:
                 self.paddle.moveDown()
+
+    def usePaddle(self, ball):
+        self.paddle.show()
+        self.paddle.checkforEdges()
+        self.paddle.checkforBall(ball)
+        self.computerAI(ball)
