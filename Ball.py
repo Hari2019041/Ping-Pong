@@ -2,8 +2,8 @@ from config import *
 
 class Ball:
     def __init__(self, color=WHITE):
-        self.x = int(WIDTH / 2)
-        self.y = int(HEIGHT / 2)
+        self.x = WIDTH // 2
+        self.y = HEIGHT // 2
         self.x_speed = choice([-1, 1])
         self.y_speed = choice([-1, 1])
         self.size = 10

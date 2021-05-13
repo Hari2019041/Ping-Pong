@@ -5,7 +5,7 @@ class Paddle:
         self.width = 10
         self.length = HEIGHT // 5
         self.x = x
-        self.y = int(HEIGHT / 2 - self.length / 2)
+        self.y = HEIGHT // 2 - self.length // 2
         self.speed = 1
         self.rect = (self.x, self.y, self.width, self.length)
         self.rally = 5
