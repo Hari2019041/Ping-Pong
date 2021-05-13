@@ -1,26 +1,7 @@
-import pygame
-from random import randint, choice
-import os
-
-pygame.init()
-pygame.font.init()
-pygame.mixer.init()
-
-WIDTH = 900
-HEIGHT = 600
-TITLE = 'Ping Pong'
-ICON = pygame.image.load('icon.png')
-
-mainScreenFont = pygame.font.SysFont('Comic Sans MS', 40)
-gameFont = pygame.font.SysFont('Comic Sans MS', 30)
-
-BOUNCE = pygame.mixer.Sound(os.path.join('sounds', 'bounce.wav'))
-
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-
+from config import *
+from Paddle import Paddle
+from Player import Player, Computer
+from Ball import Ball
 
 def setWindow(TITLE, ICON):
     pygame.display.set_caption(TITLE)
@@ -136,12 +117,9 @@ class Game:
     def checkforPoint(self):
         player1win = self.ball.x + self.ball.size > WIDTH
         player2win = self.ball.x - self.ball.size < 0
-        if player2win:
-            self.player2.score += 1
-            self.ball.reset()
-        elif player1win:
-            self.player1.score += 1
-            self.ball.reset()
+        self.player2.score += 1 if player2win else 0
+        self.player1.score += 1 if player1win else 0
+        self.ball.reset() if player1win or player2win else ''
 
     def showPlayerNames(self):
         self.player1.showName()
@@ -153,123 +131,6 @@ class Game:
 
     def showLine(self):
         pygame.draw.line(SCREEN, WHITE, (WIDTH // 2, 0), (WIDTH // 2, HEIGHT))
-
-
-class Ball:
-    def __init__(self, color=WHITE):
-        self.x = int(WIDTH / 2)
-        self.y = int(HEIGHT / 2)
-        self.x_speed = choice([-1, 1])
-        self.y_speed = choice([-1, 1])
-        self.size = 10
-        self.color = color
-        self.shots = 0
-
-    def show(self):
-        pygame.draw.circle(SCREEN, self.color, (self.x, self.y), self.size)
-
-    def move(self):
-        self.x += self.x_speed
-        self.y += self.y_speed
-
-    def checkforEdges(self):
-        if self.y > HEIGHT or self.y < 0:
-            pygame.mixer.Sound.play(BOUNCE)
-            self.y_speed *= -1
-
-    def reset(self):
-        self.x_speed = choice([-1, 1])
-        self.y_speed = choice([-1, 1])
-        self.shots = 0
-        self.x = randint(WIDTH // 2 - 70, WIDTH // 2 + 70)
-        self.y = randint(HEIGHT // 2 - 70, HEIGHT // 2 + 70)
-
-    def leaveScreen(self):
-        self.reset() if self.x > WIDTH or self.x < 0 else ''
-
-
-class Player:
-    def __init__(self, no, name):
-        self.no = no
-        self.name = name
-        self.score = 0
-        self.createPaddle()
-        self.setKeys()
-        self.setScorepos()
-
-    def setScorepos(self):
-        self.namepos = (30, 0) if self.no == 1 else (WIDTH - 100, 0)
-        self.scorepos = (30, 50) if self.no == 1 else (WIDTH - 100, 50)
-
-    def createPaddle(self):
-        self.paddle = Paddle(10) if self.no == 1 else Paddle(WIDTH - 2 * 10)
-
-    def setKeys(self):
-        self.upKey = pygame.K_w if self.no == 1 else pygame.K_UP
-        self.downKey = pygame.K_s if self.no == 1 else pygame.K_DOWN
-
-    def movePaddle(self):
-        keys = pygame.key.get_pressed()
-        self.paddle.moveUp() if keys[self.upKey] else ''
-        self.paddle.moveDown() if keys[self.downKey] else ''
-
-    def showName(self):
-        name_label = gameFont.render(str(self.name), True, WHITE, BLACK)
-        SCREEN.blit(name_label, self.namepos)
-
-    def showScore(self):
-        score = gameFont.render(str(self.score), True, WHITE, BLACK)
-        SCREEN.blit(score, self.scorepos)
-
-
-class Computer(Player):
-    def __init__(self, no=1, name='Computer'):
-        super().__init__(no, name)
-        self.paddle = Paddle(10)
-        self.paddle.speed = 1
-
-    def computerAI(self, ball):
-        if ball.x < WIDTH // 2 and ball.x_speed < 0:
-            if ball.y < self.paddle.y + self.paddle.length // 2:
-                self.paddle.moveUp()
-            elif ball.y > self.paddle.y + self.paddle.length // 2:
-                self.paddle.moveDown()
-
-
-class Paddle:
-    def __init__(self, x):
-        self.width = 10
-        self.length = HEIGHT // 5
-        self.x = x
-        self.y = int(HEIGHT / 2 - self.length / 2)
-        self.speed = 1
-        self.rect = (self.x, self.y, self.width, self.length)
-        self.rally = 5
-
-    def show(self):
-        pygame.draw.rect(SCREEN, WHITE, self.rect)
-
-    def moveUp(self):
-        self.y -= self.speed
-        self.rect = (self.x, self.y, self.width, self.length)
-
-    def moveDown(self):
-        self.y += self.speed
-        self.rect = (self.x, self.y + self.speed, self.width, self.length)
-
-    def checkforEdges(self):
-        self.y = HEIGHT - self.length if self.y + self.length > HEIGHT else self.y
-        self.y = 0 if self.y < 0 else self.y
-        self.rect = (self.x, self.y, self.width, self.length)
-
-    def checkforBall(self, ball):
-        leftright = self.x < ball.x < self.x + self.width
-        topbottom = self.y < ball.y < self.y + self.length
-        if leftright and topbottom:
-            pygame.mixer.Sound.play(BOUNCE)
-            ball.x_speed *= -1
-            ball.shots += 0.5
-
 
 def main():
     setWindow(TITLE, ICON)
