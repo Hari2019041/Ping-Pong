@@ -12,6 +12,11 @@ HEIGHT = 600
 TITLE = 'Ping Pong'
 ICON = pygame.image.load('icon.png')
 
+def setWindow(TITLE, ICON):
+    pygame.display.set_caption(TITLE)
+    pygame.display.set_icon(ICON)
+
+
 # FONTS
 mainScreenFont = pygame.font.SysFont('Comic Sans MS', 40)
 gameFont = pygame.font.SysFont('Comic Sans MS', 30)
